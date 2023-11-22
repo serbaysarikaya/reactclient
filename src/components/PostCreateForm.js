@@ -4,7 +4,7 @@ import Constants from '../utilities/Constants';
 export default function PostCreateForm(props) {
   const initialFormData = Object.freeze({
     title: "Post x",
-    content: "This is post x and it has some very interesting content. I have also liked the video and subscribed."
+    content: "This is post x and it has some very interesting content. "
   });
 
   const [formData, setFormData] = useState(initialFormData);
@@ -47,8 +47,7 @@ export default function PostCreateForm(props) {
   };
 
   return (
-    <div>
-      <form className='w-100 pc-5'>
+    <form className='w-100 pc-5'>
         <h1 className='mt-5'>Create new post</h1>
 
         <div className='mt-5'>
@@ -63,6 +62,5 @@ export default function PostCreateForm(props) {
         <button onClick={handleSubmit} className='btn btn-dark btn-lg w-100 mt-5'>Submit</button>
         <button onClick={() => props.onPostCreated(null)} className='btn btn-dark btn-lg w-100 mt-5'>Cancel</button>
       </form>
-    </div>
   );
 }

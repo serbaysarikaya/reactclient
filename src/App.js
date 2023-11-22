@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-import Constants from "./utilities/Constants";
-import PostCreateFrom from "./components/PostCreateFrom";
+import Constants from './utilities/Constants';
+import PostCreateForm from "./components/PostCreateForm";
+import PostUpdateForm from "./components/PostUpdateForm";
+
+
 
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [showingCreateNewPostForm, setShowingCreateNewPostForm] = useState(false);
+  const [postCurrentlyBeingUpdated, setPostCurrentlyBeingUpdated] = useState(null);
 
-  function getPosts() {
+  function getPost() {
     const url = Constants.API_URL_GET_ALL_POST;
     fetch(url, {
       method: 'GET',
     })
       .then(response => response.json()) // Buradaki parantezi ekledim
       .then(postsFromServer => {
+        console.log(postsFromServer);
         setPosts(postsFromServer); // Verileri state'e atmak istiyorsanız burada setPosts kullanabilirsiniz.
       })
       .catch((error) => {
@@ -20,21 +25,27 @@ export default function App() {
         alert(error);
       });
   }
+
   return (
     <div className="container">
       <div className="row min-vh-100">
         <div className="col d-flex flex-column justify-content-center align-items-center">
-          {showingCreateNewPostForm === false && (
+          {(showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && (
             <div>
               <h1>ASP .Net  Core React Tutorial</h1>
               <div className="mt-5">
-                <button onClick={getPosts} className="btn btn-dark btn-lg w-100">Get Posts from server</button>
+                <button onClick={getPost} className="btn btn-dark btn-lg w-100">Get Posts from server</button>
                 <button onClick={() => setShowingCreateNewPostForm(true)} className="btn btn-secondary btn-lg w-100 mt-4">Creat New Post</button>
               </div>
             </div>
           )}
-          {(posts.length > 0 && setShowingCreateNewPostForm === false) && renderPostTable()}
-          {showingCreateNewPostForm && <PostCreateFrom onPostCreated={onPostCreated} />}
+
+          {(posts.length > 0 && showingCreateNewPostForm === false && postCurrentlyBeingUpdated === null) && renderPostTable()}
+
+          {showingCreateNewPostForm && <PostCreateForm onPostCreated={onPostCreated} />}
+
+          {postCurrentlyBeingUpdated !== null && <PostUpdateForm post={postCurrentlyBeingUpdated} onPostUpdated={onPostUpdated} />}
+
         </div>
       </div>
     </div>
@@ -59,7 +70,7 @@ export default function App() {
                 <td>{post.title}</td>
                 <td>{post.content}</td>
                 <td>
-                  <button className="btn btn-dark btn-lg mx-3 my-3">Update</button>
+                  <button  onClick={()=> setPostCurrentlyBeingUpdated(post)} className="btn btn-dark btn-lg mx-3 my-3">Update</button>
                   <button className="btn btn-secondary btn-lg">Delete</button>
                 </td>
               </tr>
@@ -70,19 +81,37 @@ export default function App() {
       </div>
     );
   }
-
-
   function onPostCreated(createdPost) {
-setShowingCreateNewPostForm(false);
-
+    setShowingCreateNewPostForm(false)
     if (createdPost === null) {
       return;
     }
+    alert(`Post Successfully created. `)
 
-    alert(`Post succesfully created. After clicking OK, your new post "${createdPost.title}" will show up in the table below`)
-    getPosts();
-
+    getPost();
   }
+
+
+  function onPostUpdated (updatedPost) {
+    setPostCurrentlyBeingUpdated(null);
+  
+    if (updatedPost === null) {
+      return;
+    }
+    let postCopy = [...posts];
+    const index = postCopy.findIndex((postCopyPost, currentIndex) => {
+      if (postCopyPost.postId === updatedPost.postId) {
+        return true;
+      }
+    });
+    if (index !== -1) {
+      postCopy[index] = updatedPost;
+    }
+    setPosts(postCopy);
+  
+    alert(`Post successfully updated. After click OK, look for the.."${updatedPost.title}"`)
+  }
+  
 }
 
 
