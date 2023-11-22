@@ -26,6 +26,22 @@ export default function App() {
       });
   }
 
+  function deletePost(postId){
+    const url =`${Constants.API_URL_DELETE_POST_BY_ID}/${postId}`;
+       fetch(url, {
+      method: 'DELETE',
+    })
+      .then(response => response.json()) // Buradaki parantezi ekledim
+      .then(responseFromServer => {
+     console.log(responseFromServer);
+     onPostDeleted(postId);
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(error);
+      });
+  }
+
   return (
     <div className="container">
       <div className="row min-vh-100">
@@ -71,7 +87,7 @@ export default function App() {
                 <td>{post.content}</td>
                 <td>
                   <button  onClick={()=> setPostCurrentlyBeingUpdated(post)} className="btn btn-dark btn-lg mx-3 my-3">Update</button>
-                  <button className="btn btn-secondary btn-lg">Delete</button>
+                  <button onClick={()=>{if(window.confirm(`Are You sure you want to delete the post title "${post.title}"?`)) deletePost(post.postId)}} className="btn btn-secondary btn-lg">Delete</button>
                 </td>
               </tr>
             ))}
@@ -81,6 +97,7 @@ export default function App() {
       </div>
     );
   }
+
   function onPostCreated(createdPost) {
     setShowingCreateNewPostForm(false)
     if (createdPost === null) {
@@ -90,8 +107,6 @@ export default function App() {
 
     getPost();
   }
-
-
   function onPostUpdated (updatedPost) {
     setPostCurrentlyBeingUpdated(null);
   
@@ -111,6 +126,23 @@ export default function App() {
   
     alert(`Post successfully updated. After click OK, look for the.."${updatedPost.title}"`)
   }
+
+  function onPostDeleted (deletedPostPostId) {
+       let postCopy = [...posts];
+
+    const index = postCopy.findIndex((postCopyPost, currentIndex) => {
+      if (postCopyPost.postId === deletedPostPostId) {
+        return true;
+      }
+    });
+    if (index !== -1) {
+      postCopy.splice(index,1);
+    }
+    setPosts(postCopy);
+  
+    alert(`Post successfully deleted. After click Ok, look at the table below to see your post disapper.`)
+  }
+
   
 }
 
